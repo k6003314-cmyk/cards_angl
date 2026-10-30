@@ -52,7 +52,7 @@ class StudyRepository private constructor(private val db: AppDatabase) {
         val now = System.currentTimeMillis()
         val interval = if (!knew) 0 else when (card.intervalDays) { 0 -> 1; 1 -> 3; 3 -> 7; 7 -> 14; else -> (card.intervalDays * 2).coerceAtMost(365) }
         val dueAt = if (knew) now + interval * 24L * 60 * 60 * 1000 else now + 10 * 60 * 1000L
-        db.withTransaction {
+        return db.withTransaction {
             val updated = card.copy(dueAt = dueAt, intervalDays = interval, repetitions = if (knew) card.repetitions + 1 else 0)
             dao.putCard(updated)
             dao.putLog(ReviewLogEntity(UUID.randomUUID().toString(), card.id, knew, now))
@@ -71,3 +71,4 @@ class StudyRepository private constructor(private val db: AppDatabase) {
 }
 
 data class ImportedWord(val english: String, val transcription: String = "", val translation: String)
+
